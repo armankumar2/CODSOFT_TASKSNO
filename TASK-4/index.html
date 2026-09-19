@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecomAI - Smart Recommendation System</title>
+    <meta name="description" content="AI/ML powered movie recommendation system using content-based filtering.">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons for modern sleek icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <i class="ph-fill ph-brain"></i>
+                    <div>
+                        <h1>RecomAI</h1>
+                        <span>Smart Recommendation System</span>
+                    </div>
+                </div>
+                <button class="mobile-close" id="mobile-close" aria-label="Close menu">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+
+            <nav class="main-nav">
+                <a href="#recommendations" class="nav-item active" data-view="home">
+                    <i class="ph ph-target"></i> 🎯 Recommendations
+                </a>
+                <a href="#explore" class="nav-item" data-view="explore">
+                    <i class="ph ph-magnifying-glass"></i> 🔍 Explore
+                </a>
+                <a href="#preferences" class="nav-item" data-view="preferences">
+                    <i class="ph ph-heart"></i> ❤️ My Preferences
+                </a>
+                <a href="#how-it-works" class="nav-item" data-view="how-it-works">
+                    <i class="ph ph-lightbulb"></i> 🧠 How It Works
+                </a>
+                <a href="#insights" class="nav-item" data-view="insights">
+                    <i class="ph ph-chart-bar"></i> 📊 Model Insights
+                </a>
+                <a href="#settings" class="nav-item">
+                    <i class="ph ph-gear"></i> ⚙️ Settings
+                </a>
+            </nav>
+
+            <div class="sidebar-section">
+                <button class="btn-primary w-full" id="btn-start-new">
+                    <i class="ph ph-plus"></i> Start New
+                </button>
+            </div>
+
+            <div class="sidebar-section recent-searches">
+                <h3>Recent Searches</h3>
+                <ul id="recent-search-list">
+                    <li><i class="ph ph-clock"></i> Interstellar</li>
+                    <li><i class="ph ph-clock"></i> Inception</li>
+                    <li><i class="ph ph-clock"></i> The Dark Knight</li>
+                    <li><i class="ph ph-clock"></i> Avengers</li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="engine-info">
+                    <i class="ph-fill ph-cpu"></i>
+                    <div>
+                        <span>Content-Based ML</span>
+                        <small>v1.0.4</small>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-workspace">
+            <!-- Header -->
+            <header class="top-header">
+                <button class="mobile-menu" id="mobile-menu" aria-label="Open menu">
+                    <i class="ph ph-list"></i>
+                </button>
+                <div class="header-titles">
+                    <h2>Smart Recommendations</h2>
+                    <p>Discover something you'll love.</p>
+                </div>
+                <div class="header-actions">
+                    <div class="engine-status">
+                        <span class="status-dot"></span>
+                        <span id="engine-status-text">Ready</span>
+                    </div>
+                    <button class="icon-btn" aria-label="User Profile"><i class="ph ph-user"></i></button>
+                    <button class="icon-btn" aria-label="Settings"><i class="ph ph-gear"></i></button>
+                </div>
+            </header>
+
+            <!-- Scrollable Content Area -->
+            <div class="content-area">
+                
+                <!-- View: Home / Search (Welcome State) -->
+                <section id="view-home" class="view-section active">
+                    <div class="welcome-container">
+                        <h1 class="welcome-title">What would you like to watch?</h1>
+                        <p class="welcome-subtitle">Choose a movie you like and we'll find similar titles using content-based recommendation.</p>
+                        
+                        <div class="search-wrapper">
+                            <i class="ph ph-magnifying-glass search-icon"></i>
+                            <input type="text" id="movie-search" placeholder="Search movies..." autocomplete="off">
+                            
+                            <!-- Autocomplete Dropdown -->
+                            <div class="autocomplete-dropdown" id="autocomplete-results">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- View: Selected Movie & Recommendations -->
+                <section id="view-results" class="view-section hidden">
+                    <!-- Selected Movie Card -->
+                    <div class="selected-movie-card" id="selected-movie-card">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Loading State -->
+                    <div class="loading-state hidden" id="recommendation-loader">
+                        <div class="spinner"></div>
+                        <h3>Finding similar movies...</h3>
+                        <p>Comparing content features (TF-IDF & Cosine Similarity)</p>
+                    </div>
+
+                    <!-- Recommendations Grid -->
+                    <div class="recommendations-container hidden" id="recommendations-results">
+                        <div class="section-header">
+                            <h2>Recommended For You</h2>
+                            <p>Based on the content and characteristics of your selected movie.</p>
+                        </div>
+                        
+                        <div class="movie-grid" id="recommendation-grid">
+                            <!-- Cards populated by JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- View: Explore -->
+                <section id="view-explore" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>Explore Movies</h2>
+                        <p>Discover titles by genre and popularity.</p>
+                    </div>
+                    
+                    <div class="explore-categories">
+                        <div class="category-row">
+                            <h3>Popular Right Now</h3>
+                            <div class="horizontal-scroll" id="explore-popular">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        <div class="category-row">
+                            <h3>Sci-Fi</h3>
+                            <div class="horizontal-scroll" id="explore-scifi">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        <div class="category-row">
+                            <h3>Action</h3>
+                            <div class="horizontal-scroll" id="explore-action">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- View: Preferences -->
+                <section id="view-preferences" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>My Preferences</h2>
+                        <p>Select your favorite genres to improve base recommendations.</p>
+                    </div>
+                    
+                    <div class="preferences-container">
+                        <div class="genre-chips" id="genre-preferences">
+                            <button class="chip" data-genre="Action">Action</button>
+                            <button class="chip" data-genre="Adventure">Adventure</button>
+                            <button class="chip" data-genre="Comedy">Comedy</button>
+                            <button class="chip" data-genre="Drama">Drama</button>
+                            <button class="chip" data-genre="Horror">Horror</button>
+                            <button class="chip" data-genre="Romance">Romance</button>
+                            <button class="chip" data-genre="Sci-Fi">Sci-Fi</button>
+                            <button class="chip" data-genre="Thriller">Thriller</button>
+                            <button class="chip" data-genre="Animation">Animation</button>
+                        </div>
+                        
+                        <button class="btn-primary mt-4" id="btn-save-prefs">Update Recommendations</button>
+                    </div>
+                </section>
+
+                <!-- View: How It Works -->
+                <section id="view-how-it-works" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>How It Works</h2>
+                        <p>The machine learning pipeline behind our content-based recommendation system.</p>
+                    </div>
+                    
+                    <div class="pipeline-visualization">
+                        <div class="pipeline-step">
+                            <div class="step-icon"><i class="ph ph-user"></i></div>
+                            <h4>User Preference</h4>
+                        </div>
+                        <div class="pipeline-arrow"><i class="ph ph-arrow-down"></i></div>
+                        
+                        <div class="pipeline-step">
+                            <div class="step-icon"><i class="ph ph-database"></i></div>
+                            <h4>Movie Metadata</h4>
+                        </div>
+                        <div class="pipeline-arrow"><i class="ph ph-arrow-down"></i></div>
+                        
+                        <div class="pipeline-step">
+                            <div class="step-icon"><i class="ph ph-text-aa"></i></div>
+                            <h4>Text Processing</h4>
+                        </div>
+                        <div class="pipeline-arrow"><i class="ph ph-arrow-down"></i></div>
+                        
+                        <div class="pipeline-step highlight">
+                            <div class="step-icon"><i class="ph ph-math-operations"></i></div>
+                            <h4>TF-IDF Vectorization</h4>
+                        </div>
+                        <div class="pipeline-arrow"><i class="ph ph-arrow-down"></i></div>
+                        
+                        <div class="pipeline-step highlight">
+                            <div class="step-icon"><i class="ph ph-intersect"></i></div>
+                            <h4>Cosine Similarity</h4>
+                        </div>
+                        <div class="pipeline-arrow"><i class="ph ph-arrow-down"></i></div>
+                        
+                        <div class="pipeline-step">
+                            <div class="step-icon"><i class="ph ph-list-numbers"></i></div>
+                            <h4>Similarity Ranking</h4>
+                        </div>
+                        <div class="pipeline-arrow"><i class="ph ph-arrow-down"></i></div>
+                        
+                        <div class="pipeline-step success">
+                            <div class="step-icon"><i class="ph ph-star"></i></div>
+                            <h4>Top-N Recommendations</h4>
+                        </div>
+                    </div>
+                    
+                    <div class="pipeline-description">
+                        <p>The system compares the content characteristics of movies (genres, overview, keywords, cast) and recommends titles with the highest mathematical similarity scores.</p>
+                    </div>
+                </section>
+
+                <!-- View: Model Insights -->
+                <section id="view-insights" class="view-section hidden">
+                    <div class="section-header">
+                        <h2>Recommendation Engine</h2>
+                        <p>Technical details of the current active model.</p>
+                    </div>
+                    
+                    <div class="insights-grid">
+                        <div class="insight-card">
+                            <i class="ph ph-share-network"></i>
+                            <h3>Algorithm</h3>
+                            <p>Content-Based Filtering</p>
+                        </div>
+                        <div class="insight-card">
+                            <i class="ph ph-function"></i>
+                            <h3>Feature Extraction</h3>
+                            <p>TF-IDF (Term Frequency - Inverse Document Frequency)</p>
+                        </div>
+                        <div class="insight-card">
+                            <i class="ph ph-arrows-merge"></i>
+                            <h3>Similarity Metric</h3>
+                            <p>Cosine Similarity</p>
+                        </div>
+                        <div class="insight-card">
+                            <i class="ph ph-list-dashes"></i>
+                            <h3>Recommendations</h3>
+                            <p>Top 5 Matches</p>
+                        </div>
+                        <div class="insight-card">
+                            <i class="ph ph-database"></i>
+                            <h3>Dataset</h3>
+                            <p>Movie Metadata Dataset (Kaggle)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="visual-formula mt-4">
+                        <h4>Vector Representation Pipeline</h4>
+                        <div class="formula-box">
+                            <code>Movie → Features → Vector Space → Similarity Score → Ranking</code>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Template for Explanation Modal/Panel -->
+    <template id="tpl-explanation">
+        <div class="explanation-panel hidden">
+            <h4>Why you might like this</h4>
+            <div class="explanation-details">
+                <div class="exp-row">
+                    <span class="exp-label">Similar genres</span>
+                    <span class="exp-value">{genres}</span>
+                </div>
+                <div class="exp-row">
+                    <span class="exp-label">Similar keywords</span>
+                    <span class="exp-value">{keywords}</span>
+                </div>
+                <div class="exp-row">
+                    <span class="exp-label">Content similarity</span>
+                    <span class="exp-value highlight">{score}%</span>
+                </div>
+            </div>
+            
+            <h4 class="mt-3">Recommendation Method</h4>
+            <div class="method-badge">TF-IDF + Cosine Similarity</div>
+            
+            <h4 class="mt-3">Content Similarity Vector</h4>
+            <div class="similarity-viz">
+                <div class="viz-header">{source}</div>
+                <div class="viz-branch">
+                    <div class="viz-line">├── {genre1}</div>
+                    <div class="viz-bar" style="width: 90%;"></div>
+                </div>
+                <div class="viz-branch">
+                    <div class="viz-line">├── {genre2}</div>
+                    <div class="viz-bar" style="width: 75%;"></div>
+                </div>
+                <div class="viz-branch">
+                    <div class="viz-line">├── {keyword1}</div>
+                    <div class="viz-bar" style="width: 60%;"></div>
+                </div>
+                <div class="viz-branch">
+                    <div class="viz-line">└── {keyword2}</div>
+                    <div class="viz-bar" style="width: 45%;"></div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html>
